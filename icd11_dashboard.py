@@ -7,7 +7,7 @@ from io import BytesIO
 # Load dataset
 @st.cache_data
 def load_data():
-    df = pd.read_csv("icd11_codes.csv")  # Ensure the file is in the same directory
+    df = pd.read_csv("icd11_codes.csv")
     df["Parent_Code"] = df["Code"].apply(lambda x: x.rsplit(".", 1)[0] if "." in x else None)
     return df
 
@@ -38,7 +38,7 @@ def create_network_graph(data):
         if row["Parent_Code"] in data["Code"].values:
             G.add_edge(row["Parent_Code"], row["Code"])
 
-    pos = nx.spring_layout(G, seed=42)
+    pos = nx.kamada_kawai_layout(G)  # Faster alternative layout
     edge_x = []
     edge_y = []
     for edge in G.edges():
