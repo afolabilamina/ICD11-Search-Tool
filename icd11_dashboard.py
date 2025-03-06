@@ -29,51 +29,6 @@ st.write("Search for diseases, view hierarchical relationships, and export data.
 
 st.dataframe(filtered_df)
 
-# Hierarchy Visualization
-def create_network_graph(data):
-    G = nx.DiGraph()
-
-    for _, row in data.iterrows():
-        G.add_node(row["Code"], label=row["Title"])
-        if row["Parent_Code"] in data["Code"].values:
-            G.add_edge(row["Parent_Code"], row["Code"])
-
-    pos = nx.kamada_kawai_layout(G)  # Faster alternative layout
-    edge_x = []
-    edge_y = []
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.append(x0)
-        edge_x.append(x1)
-        edge_x.append(None)
-        edge_y.append(y0)
-        edge_y.append(y1)
-        edge_y.append(None)
-
-    node_x = [pos[node][0] for node in G.nodes()]
-    node_y = [pos[node][1] for node in G.nodes()]
-    node_labels = [G.nodes[node]["label"] for node in G.nodes()]
-
-    edge_trace = go.Scatter(
-        x=edge_x, y=edge_y, line=dict(width=1, color="gray"), hoverinfo="none", mode="lines"
-    )
-    node_trace = go.Scatter(
-        x=node_x,
-        y=node_y,
-        mode="markers+text",
-        text=node_labels,
-        textposition="top center",
-        marker=dict(size=10, color="blue"),
-    )
-
-    fig = go.Figure(data=[edge_trace, node_trace])
-    fig.update_layout(title="ICD-11 Disease Hierarchy", showlegend=False)
-    return fig
-
-if st.button("Show Hierarchy Visualization"):
-    st.plotly_chart(create_network_graph(df))
-
 # Export Data
 st.sidebar.subheader("Export Data")
 buffer = BytesIO()
